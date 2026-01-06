@@ -24,17 +24,17 @@ export default function TextPage({ navigation, route }) {
   const {
     index,
     title: initialTitle,
-    conteudo: initialConteudo,
+    content: initialContent,
   } = route.params || {};
 
   const [title, setTitle] = useState(initialTitle || "");
-  const [conteudo, setConteudo] = useState(initialConteudo || "");
+  const [content, setContent] = useState(initialContent || "");
   const [isRecording, setIsRecording] = useState(false);
 
   useSpeechRecognitionEvent("result", (event) => {
     const transcript = event.results[0]?.transcript;
     if (transcript) {
-      setConteudo((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      setContent((prev) => (prev ? `${prev} ${transcript}` : transcript));
     }
   });
 
@@ -59,7 +59,6 @@ export default function TextPage({ navigation, route }) {
 
     try {
       setIsRecording(true);
-
       await ExpoSpeechRecognitionModule.start({
         lang: "pt-BR",
         interimResults: false,
@@ -72,13 +71,14 @@ export default function TextPage({ navigation, route }) {
 
   const handleSave = () => {
     if (title.trim() === "") {
+      Alert.alert("Aviso", "O título não pode estar vazio.");
       return;
     }
 
     const cardData = {
       title: title.trim(),
       width: 100,
-      conteudo: conteudo.trim(),
+      content: content.trim(),
     };
 
     navigation.navigate("Home", {
@@ -103,7 +103,6 @@ export default function TextPage({ navigation, route }) {
 
         <Text style={styles.headerTitle}>Editor</Text>
 
-        {/* BOTÃO DE VOZ DINÂMICO */}
         <TouchableOpacity onPress={handleSpeech} style={styles.micButtonHeader}>
           <Ionicons
             name={isRecording ? "mic" : "mic-outline"}
@@ -128,7 +127,7 @@ export default function TextPage({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      {/* ÁREA DE TEXTO */}
+      {/* ÁREA DE TEXTO SCROLLABLE */}
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
@@ -155,8 +154,8 @@ export default function TextPage({ navigation, route }) {
           </Text>
           <TextInput
             style={styles.textInput}
-            value={conteudo}
-            onChangeText={setConteudo}
+            value={content}
+            onChangeText={setContent}
             placeholder="Pressione o microfone para ditar ou digite aqui..."
             placeholderTextColor="#666"
             multiline
@@ -164,6 +163,27 @@ export default function TextPage({ navigation, route }) {
           />
         </View>
       </ScrollView>
+
+      {/* FOOTER COM OPÇÃO DE PROMPTER (APENAS EM EDIÇÃO) */}
+      {index !== null && index !== undefined && (
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
+          <TouchableOpacity
+            style={styles.prompterButton}
+            onPress={() => {
+              if (!content.trim()) {
+                Alert.alert("Erro", "Adicione texto antes de usar o Prompter.");
+                return;
+              }
+              navigation.navigate("Prompter", {
+                content: content.trim(),
+              });
+            }}
+          >
+            <Ionicons name="play-circle" size={24} color="#000" />
+            <Text style={styles.prompterButtonText}>USAR COMO PROMPTER</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -240,5 +260,34 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     minHeight: 300,
+  },
+  footer: {
+    backgroundColor: "rgb(30, 27, 28)",
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 140, 0, 0.2)",
+    alignItems: "center",
+  },
+  prompterButton: {
+    backgroundColor: "#FF8C00",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    width: "100%",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  prompterButtonText: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "800",
+    marginLeft: 10,
+    letterSpacing: 1,
   },
 });

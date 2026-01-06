@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -16,28 +17,11 @@ import { Ionicons } from "@expo/vector-icons";
 import Navbar from "./src/components/NavBar";
 import CardMenu from "./src/components/CardMenu";
 import TextPage from "./src/screens/TextPage";
+import PrompterPage from "./src/screens/PrompterPage";
 
 const Stack = createNativeStackNavigator();
 
-const initialCards = [
-  {
-    title: "Prompter 1",
-    width: 100,
-    conteudo:
-      "Este é um texto de exemplo para o primeiro prompter. Use para criar suas mensagens.",
-  },
-  {
-    title: "Prompter 2",
-    width: 100,
-    conteudo:
-      "Segundo card com conteúdo de exemplo. Texto curto para demonstração.",
-  },
-  {
-    title: "Prompter 3",
-    width: 100,
-    conteudo: "Terceiro item da lista. Mini texto para teste do componente.",
-  },
-];
+const STORAGE_KEY = "@flexnotes_cards";
 
 function HomeScreen({ navigation, route, cards, setCards }) {
   const { width } = useWindowDimensions();
@@ -50,11 +34,18 @@ function HomeScreen({ navigation, route, cards, setCards }) {
         if (index !== null && index >= 0) {
           setCards((prevCards) => {
             const newCards = [...prevCards];
-            newCards[index] = cardData;
+
+            newCards[index] = {
+              ...cardData,
+              id: prevCards[index]?.id || Date.now(),
+            };
             return newCards;
           });
         } else {
-          setCards((prevCards) => [...prevCards, cardData]);
+          setCards((prevCards) => [
+            ...prevCards,
+            { ...cardData, id: Date.now() },
+          ]);
         }
         navigation.setParams({ cardData: undefined });
       }
@@ -76,15 +67,15 @@ function HomeScreen({ navigation, route, cards, setCards }) {
 
         {cards.map((card, index) => (
           <CardMenu
-            key={index}
+            key={card.id || index}
             title={card.title}
             width={cardWidth}
-            conteudo={card.conteudo}
+            content={card.content}
             onEdit={() =>
               navigation.navigate("Editor", {
                 index: index,
                 title: card.title,
-                conteudo: card.conteudo,
+                content: card.content,
               })
             }
           />
@@ -97,7 +88,43 @@ function HomeScreen({ navigation, route, cards, setCards }) {
 }
 
 export default function App() {
-  const [cards, setCards] = useState(initialCards);
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    const loadCards = async () => {
+      try {
+        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const cardsWithIds = parsed.map((card, idx) => ({
+              id: card.id || Date.now() + idx,
+              title: card.title || "",
+              width: card.width || 100,
+              content: card.content || card.conteudo || "",
+            }));
+            setCards(cardsWithIds);
+          }
+        }
+      } catch (error) {
+        console.warn("Erro ao carregar notas do AsyncStorage:", error);
+      }
+    };
+
+    loadCards();
+  }, []);
+
+  useEffect(() => {
+    const saveCards = async () => {
+      try {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+      } catch (error) {
+        console.warn("Erro ao salvar notas no AsyncStorage:", error);
+      }
+    };
+
+    saveCards();
+  }, [cards]);
 
   return (
     <SafeAreaProvider>
@@ -109,6 +136,7 @@ export default function App() {
             )}
           </Stack.Screen>
           <Stack.Screen name="Editor" component={TextPage} />
+          <Stack.Screen name="Prompter" component={PrompterPage} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

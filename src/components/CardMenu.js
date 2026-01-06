@@ -2,18 +2,18 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function CardMenu({ title, width, conteudo, onEdit }) {
+export default function CardMenu({ title, width, content, onEdit }) {
   return (
     <View style={[styles.card, { width: width }]}>
       <View style={styles.contentContainer}>
         <Text style={styles.navbarTitle}>{title}</Text>
-        {conteudo && (
+        {content && (
           <Text
-            style={styles.conteudoText}
+            style={styles.contentText}
             numberOfLines={2}
             ellipsizeMode="tail"
           >
-            {conteudo}
+            {content}
           </Text>
         )}
       </View>
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 6,
   },
-  conteudoText: {
+  contentText: {
     color: "#ccc",
     fontSize: 14,
     lineHeight: 20,
