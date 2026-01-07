@@ -78,6 +78,10 @@ function HomeScreen({ navigation, route, cards, setCards }) {
                 content: card.content,
               })
             }
+            onDelete={() => {
+              const newCards = cards.filter((_, i) => i !== index);
+              setCards(newCards);
+            }}
           />
         ))}
       </ScrollView>

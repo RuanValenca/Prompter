@@ -92,7 +92,6 @@ export default function TextPage({ navigation, route }) {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      {/* HEADER */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -102,14 +101,6 @@ export default function TextPage({ navigation, route }) {
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>Editor</Text>
-
-        <TouchableOpacity onPress={handleSpeech} style={styles.micButtonHeader}>
-          <Ionicons
-            name={isRecording ? "mic" : "mic-outline"}
-            size={26}
-            color={isRecording ? "#ff4444" : "#FF8C00"}
-          />
-        </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.saveButton}
@@ -127,14 +118,13 @@ export default function TextPage({ navigation, route }) {
         </TouchableOpacity>
       </View>
 
-      {/* ÁREA DE TEXTO SCROLLABLE */}
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.contentContainer}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Título</Text>
+          <Text style={styles.labelTitle}>Título</Text>
           <TextInput
             style={styles.titleInput}
             value={title}
@@ -146,12 +136,21 @@ export default function TextPage({ navigation, route }) {
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>
-            Texto{" "}
-            {isRecording && (
-              <Text style={{ color: "#ff4444" }}> (Ouvindo...)</Text>
-            )}
-          </Text>
+          <View style={styles.labelContainer}>
+            <Text style={styles.label}>
+              Texto{" "}
+              {isRecording && (
+                <Text style={{ color: "#ff4444" }}> (Ouvindo...)</Text>
+              )}
+            </Text>
+            <TouchableOpacity onPress={handleSpeech} style={styles.micButton}>
+              <Ionicons
+                name={isRecording ? "mic" : "mic-outline"}
+                size={24}
+                color={isRecording ? "#ff4444" : "#FF8C00"}
+              />
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.textInput}
             value={content}
@@ -164,7 +163,6 @@ export default function TextPage({ navigation, route }) {
         </View>
       </ScrollView>
 
-      {/* FOOTER COM OPÇÃO DE PROMPTER (APENAS EM EDIÇÃO) */}
       {index !== null && index !== undefined && (
         <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
           <TouchableOpacity
@@ -197,26 +195,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255, 140, 0, 0.3)",
+    position: "relative",
   },
   backButton: {
     padding: 5,
-  },
-  micButtonHeader: {
-    padding: 5,
-    marginRight: 10,
+    width: 44,
+    alignItems: "flex-start",
   },
   headerTitle: {
+    position: "absolute",
+    left: 0,
+    right: 0,
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
-    flex: 1,
     textAlign: "center",
+    zIndex: 0,
   },
   saveButton: {
     padding: 5,
+    minWidth: 60,
+    alignItems: "flex-end",
   },
   saveButtonText: {
     color: "#FF8C00",
@@ -235,11 +238,27 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 25,
   },
-  label: {
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  labelTitle: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 10,
+  },
+  label: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    flex: 1,
+  },
+  micButton: {
+    padding: 5,
+    marginLeft: 10,
   },
   titleInput: {
     backgroundColor: "rgb(30, 27, 28)",

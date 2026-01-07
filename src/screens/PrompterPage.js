@@ -36,7 +36,6 @@ export default function PrompterPage({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      {/* Botão de Sair */}
       <TouchableOpacity
         style={[styles.closeButton, { top: insets.top + 10 }]}
         onPress={() => navigation.goBack()}
@@ -54,11 +53,9 @@ export default function PrompterPage({ navigation, route }) {
         scrollEventThrottle={16}
       >
         <Text style={styles.prompterText}>{content}</Text>
-        {/* Espaço extra no fim para o texto não parar no meio da tela */}
         <View style={{ height: height / 2 }} />
       </ScrollView>
 
-      {/* CONTROLES INFERIORES */}
       <View style={[styles.controls, { paddingBottom: insets.bottom + 20 }]}>
         <TouchableOpacity onPress={() => setSpeed((s) => Math.min(s + 5, 100))}>
           <Ionicons name="remove-circle-outline" size={40} color="#FF8C00" />
