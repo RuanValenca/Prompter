@@ -100,8 +100,6 @@ export default function TextPage({ navigation, route }) {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>Editor</Text>
-
         <TouchableOpacity
           style={styles.saveButton}
           onPress={handleSave}
@@ -205,16 +203,6 @@ const styles = StyleSheet.create({
     padding: 5,
     width: 44,
     alignItems: "flex-start",
-  },
-  headerTitle: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    zIndex: 0,
   },
   saveButton: {
     padding: 5,
